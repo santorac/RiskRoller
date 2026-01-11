@@ -189,6 +189,11 @@
 		
 	<div class="army-column simulation-panel">
 		<h3>Simulation</h3>
+		<div class="row">
+			<label for="commit_slider">Commit:</label>
+			<span id="commit_val">3</span>
+			<input type="range" id="commit_slider" min="3" max="20" value="20">
+		</div>
 		<div class="button-group">
 			<button id="fight_button" style="width:100%; padding:15px; font-weight:bold; cursor:pointer; background:#28a745; color:white; border:none; border-radius:8px;">FIGHT!</button>
 			<button id="reset_button" style="flex: 1; padding:15px; font-weight:bold; cursor:pointer; background:#6c757d; color:white; border:none; border-radius:8px;">Reset</button>		
@@ -217,6 +222,20 @@ function takeSnapshot() {
     snapshot.defender.s5 = document.getElementById('defender_five_battalion_slider').value;
 }
 
+function updateCommitReadout()
+{
+	const commitSlider = document.getElementById('commit_slider');
+	const commitVal = document.getElementById('commit_val');
+	if (commitSlider.value === commitSlider.max)
+	{
+		commitVal.textContent = "Max (" + commitSlider.value + ")";
+	}
+	else
+	{
+		commitVal.textContent = commitSlider.value;
+	}
+}
+
 function updateArmyTotal(prefix) {
     // Select elements using the full word prefix (attacker or defender)
     const slider1 = document.getElementById(`${prefix}_one_battalion_slider`);
@@ -239,6 +258,29 @@ function updateArmyTotal(prefix) {
 				  (Number(slider5.value) * 5);
 	
 	totalDisplay.textContent = total;
+	
+	// Sync Commit Slider if this is the Attacker
+    if (prefix === 'attacker') {
+        const commitSlider = document.getElementById('commit_slider');
+		
+		let keepAtMax = Number(commitSlider.value) >= Number(commitSlider.max);
+		
+        // Max units an attacker can lose is (Total - 1) because 1 must remain
+        const maxCommit = Math.max(3, total - 1); 
+		
+		// Update max both before and after the value because of order-of-operations stickyness
+        commitSlider.max = maxCommit;
+		
+        // Push value down if total dropped below current commit
+        if (keepAtMax) {
+            commitSlider.value = maxCommit;
+        }
+				
+		// Update max both before and after the value because of order-of-operations stickyness
+        commitSlider.max = maxCommit;
+		
+		updateCommitReadout();
+    }
 }
 
 function initializeArmyCalculator(prefix) {
@@ -263,6 +305,13 @@ function initializeArmyCalculator(prefix) {
 // Start the logic for both columns
 initializeArmyCalculator('attacker');
 initializeArmyCalculator('defender');
+
+// Start the logic for the simulation column
+const commitSlider = document.getElementById('commit_slider');
+const commitVal = document.getElementById('commit_val');
+commitSlider.addEventListener('input', function() {
+	updateCommitReadout();
+});
 
 function setArmyUnits(prefix, newTotal) {
     const slider1 = document.getElementById(`${prefix}_one_battalion_slider`);
@@ -331,8 +380,11 @@ document.getElementById('fight_button').addEventListener('click', function() {
     const attacker_bonus = (document.getElementById('attacker_bonus_1').checked ? 1 : 0);
     const defender_bonus = (document.getElementById('defender_bonus_1').checked ? 1 : 0) + 
                            (document.getElementById('defender_bonus_2').checked ? 1 : 0);
-
-    while (attacker_army > 1 && defender_army > 0) {
+    
+	const commitLimit = Number(document.getElementById('commit_slider').value);
+    let attackerLostTotal = 0;
+	
+    while (attacker_army > 1 && defender_army > 0 && attackerLostTotal < commitLimit) {
         // Roll dice (3 for attacker, 2 for defender as requested)
         let a_dice = [roll(), roll(), roll()].sort((a, b) => b - a);
         let d_dice = [roll(), roll()].sort((a, b) => b - a);
@@ -351,6 +403,7 @@ document.getElementById('fight_button').addEventListener('click', function() {
             } else {
                 attacker_army--;
                 a_loss++;
+                attackerLostTotal++; // Track losses specifically
             }
             if (attacker_army <= 1 || defender_army <= 0) break;
         }
