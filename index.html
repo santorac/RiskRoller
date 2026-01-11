@@ -148,7 +148,12 @@
         <div class="row">
             <label>Total Units:</label>
             <span id="attacker_total_display">0</span>
+			<span id="attacker_error" style="color: red; font-weight: bold; margin-left: 5px;"></span>
         </div>
+		<div class="row">
+			<label>Bonuses:</label>
+			<label style="flex:none; font-weight:normal;"><input type="checkbox" id="attacker_bonus_1">Leader</label>
+		</div>
     </div>
 
     <!-- Defender Column -->
@@ -173,7 +178,13 @@
         <div class="row">
             <label>Total Units:</label>
             <span id="defender_total_display">0</span>
+			<span id="defender_error" style="color: red; font-weight: bold; margin-left: 5px;"></span>
         </div>
+		<div class="row">
+			<label>Bonuses:</label>
+			<label style="flex:none; font-weight:normal;"><input type="checkbox" id="defender_bonus_1">Leader</label>
+			<label style="flex:none; font-weight:normal;"><input type="checkbox" id="defender_bonus_2">Stronghold</label>
+		</div>
     </div>
 		
 	<div class="army-column simulation-panel">
@@ -195,6 +206,16 @@ let snapshot = {
     attacker: { s1: 0, s3: 0, s5: 0 },
     defender: { s1: 0, s3: 0, s5: 0 }
 };
+
+function takeSnapshot() {
+    snapshot.attacker.s1 = document.getElementById('attacker_one_battalion_slider').value;
+    snapshot.attacker.s3 = document.getElementById('attacker_three_battalion_slider').value;
+    snapshot.attacker.s5 = document.getElementById('attacker_five_battalion_slider').value;
+
+    snapshot.defender.s1 = document.getElementById('defender_one_battalion_slider').value;
+    snapshot.defender.s3 = document.getElementById('defender_three_battalion_slider').value;
+    snapshot.defender.s5 = document.getElementById('defender_five_battalion_slider').value;
+}
 
 function updateArmyTotal(prefix) {
     // Select elements using the full word prefix (attacker or defender)
@@ -228,7 +249,11 @@ function initializeArmyCalculator(prefix) {
     
     // Attach listeners to all three sliders
     [slider1, slider3, slider5].forEach(slider => {
-        slider.addEventListener('input', function() { updateArmyTotal(prefix); });
+        slider.addEventListener('input', function() 
+		{ 
+			updateArmyTotal(prefix); 
+			takeSnapshot();
+		});
     });
 
     // Run once to set initial zeros
@@ -244,67 +269,52 @@ function setArmyUnits(prefix, newTotal) {
     const slider3 = document.getElementById(`${prefix}_three_battalion_slider`);
     const slider5 = document.getElementById(`${prefix}_five_battalion_slider`);
 
-    const currentTotal = (Number(slider1.value) * 1) + 
-                         (Number(slider3.value) * 3) + 
-                         (Number(slider5.value) * 5);
-    
-    let debt = currentTotal - newTotal;
-    if (debt <= 0) return; // Nothing to reduce
+    // Helper to get current total
+    const getSum = (s1, s3, s5) => (s1 * 1) + (s3 * 3) + (s5 * 5);
 
     let s1 = Number(slider1.value);
     let s3 = Number(slider3.value);
     let s5 = Number(slider5.value);
 
-    // Stage 1: Reduce 1s down to 8
-    while (debt >= 1 && s1 > 8) {
-        s1--;
-        debt -= 1;
+    // 1. Reduction Phase: Remove units until we are AT or BELOW newTotal
+    // Following your priority: 1s(to 8) -> 3s(to 5) -> 5s -> 3s -> 1s
+    while (getSum(s1, s3, s5) > newTotal) {
+        if (s1 > 8) { s1--; }
+        else if (s3 > 5) { s3--; }
+        else if (s5 > 0) { s5--; }
+        else if (s3 > 0) { s3--; }
+        else if (s1 > 0) { s1--; }
+        else { break; } // Safety break
     }
 
-    // Stage 2: Reduce 3s down to 5
-    while (debt >= 3 && s3 > 5) {
-        s3--;
-        debt -= 3;
+    // 2. Refill Phase: If we "overpaid" (e.g., removed a 5 to cover a debt of 2),
+    // we are now below newTotal. Add back using greedy logic to hit exact total.
+    while (getSum(s1, s3, s5) < newTotal) {
+        let diff = newTotal - getSum(s1, s3, s5);
+        if (diff >= 3) { s3++; }
+        else { s1++; }
     }
 
-    // Stage 3: Reduce 5s as much as needed
-    while (debt >= 5 && s5 > 0) {
-        s5--;
-        debt -= 5;
-    }
-
-    // Stage 4: Reduce remaining 3s as much as needed
-    while (debt >= 3 && s3 > 0) {
-        s3--;
-        debt -= 3;
-    }
-
-    // Stage 5: Reduce remaining 1s as much as needed
-    while (debt >= 1 && s1 > 0) {
-        s1--;
-        debt -= 1;
-    }
-
-    // Apply values back to sliders
+    // Apply values back
     slider1.value = s1;
     slider3.value = s3;
     slider5.value = s5;
 
     updateArmyTotal(prefix);
+	
+    // Error Checking Logic
+    const totalDisplay = document.getElementById(`${prefix}_total_display`);
+	const errorDisplay = document.getElementById(`${prefix}_error`);
+    if (newTotal !== Number(totalDisplay.textContent)) {
+        errorDisplay.textContent = "(Error)";
+    } else {
+        errorDisplay.textContent = ""; // Clear error if it matches or is manual
+    }
 }
 
 function roll() { return Math.floor(Math.random() * 6) + 1; }
 
 document.getElementById('fight_button').addEventListener('click', function() {
-    // 1. Take a snapshot of every slider BEFORE the battle logic runs
-    snapshot.attacker.s1 = document.getElementById('attacker_one_battalion_slider').value;
-    snapshot.attacker.s3 = document.getElementById('attacker_three_battalion_slider').value;
-    snapshot.attacker.s5 = document.getElementById('attacker_five_battalion_slider').value;
-
-    snapshot.defender.s1 = document.getElementById('defender_one_battalion_slider').value;
-    snapshot.defender.s3 = document.getElementById('defender_three_battalion_slider').value;
-    snapshot.defender.s5 = document.getElementById('defender_five_battalion_slider').value;
-	
     const log = document.getElementById('battle_log');
     log.innerHTML = "<b>Battle Started!</b><br>";
 
@@ -316,12 +326,21 @@ document.getElementById('fight_button').addEventListener('click', function() {
         log.innerHTML += "Attacker needs at least 2 units to attack.";
         return;
     }
+	
+    // Calculate LOTR bonuses once at start of fight
+    const attacker_bonus = (document.getElementById('attacker_bonus_1').checked ? 1 : 0);
+    const defender_bonus = (document.getElementById('defender_bonus_1').checked ? 1 : 0) + 
+                           (document.getElementById('defender_bonus_2').checked ? 1 : 0);
 
     while (attacker_army > 1 && defender_army > 0) {
         // Roll dice (3 for attacker, 2 for defender as requested)
         let a_dice = [roll(), roll(), roll()].sort((a, b) => b - a);
         let d_dice = [roll(), roll()].sort((a, b) => b - a);
 
+        // Apply LOTR +1 Bonus to the HIGHEST die only
+        a_dice[0] += attacker_bonus;
+        d_dice[0] += defender_bonus;
+		
         let a_loss = 0, d_loss = 0;
 
         // Compare top 2 dice
