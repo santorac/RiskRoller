@@ -383,34 +383,43 @@ document.getElementById('fight_button').addEventListener('click', function() {
     
 	const commitLimit = Number(document.getElementById('commit_slider').value);
     let attackerLostTotal = 0;
-	
-    while (attacker_army > 1 && defender_army > 0 && attackerLostTotal < commitLimit) {
-        // Roll dice (3 for attacker, 2 for defender as requested)
-        let a_dice = [roll(), roll(), roll()].sort((a, b) => b - a);
-        let d_dice = [roll(), roll()].sort((a, b) => b - a);
-
-        // Apply LOTR +1 Bonus to the HIGHEST die only
-        a_dice[0] += attacker_bonus;
-        d_dice[0] += defender_bonus;
 		
-        let a_loss = 0, d_loss = 0;
+	while (attacker_army > 1 && defender_army > 0 && attackerLostTotal < commitLimit) {
+		// 1. Determine how many dice to roll based on current army sizes
+		let num_a_dice = Math.min(3, attacker_army - 1);
+		let num_d_dice = Math.min(2, defender_army);
 
-        // Compare top 2 dice
-        for (let i = 0; i < 2; i++) {
-            if (a_dice[i] > d_dice[i]) {
-                defender_army--;
-                d_loss++;
-            } else {
-                attacker_army--;
-                a_loss++;
-                attackerLostTotal++; // Track losses specifically
-            }
-            if (attacker_army <= 1 || defender_army <= 0) break;
-        }
+		// 2. Roll and sort the specific number of dice
+		let a_dice = Array.from({length: num_a_dice}, () => roll()).sort((a, b) => b - a);
+		let d_dice = Array.from({length: num_d_dice}, () => roll()).sort((a, b) => b - a);
 
-        log.innerHTML += `[${a_dice}] (-${a_loss}=${attacker_army}) vs [${d_dice}] (-${d_loss}=${defender_army})<br>`;
-        log.scrollTop = log.scrollHeight; // Auto-scroll to bottom
-    }
+		// 3. Apply LOTR +1 Bonus to the HIGHEST die only (if dice were rolled)
+		if (a_dice.length > 0) a_dice[0] += attacker_bonus;
+		if (d_dice.length > 0) d_dice[0] += defender_bonus;
+		
+		let a_loss = 0, d_loss = 0;
+
+		// 4. Compare pairs (only as many pairs as the smaller dice pool)
+		let comparisons = Math.min(a_dice.length, d_dice.length);
+
+		for (let i = 0; i < comparisons; i++) {
+			if (a_dice[i] > d_dice[i]) {
+				defender_army--;
+				d_loss++;
+			} else {
+				// Defender wins ties
+				attacker_army--;
+				a_loss++;
+				attackerLostTotal++;
+			}
+			// Break early if someone is wiped out mid-roll comparison
+			if (attacker_army <= 1 || defender_army <= 0) break;
+		}
+
+		log.innerHTML += `[${a_dice}] (-${a_loss}=${attacker_army}) vs [${d_dice}] (-${d_loss}=${defender_army})<br>`;
+		log.scrollTop = log.scrollHeight;
+	}
+
 
     log.innerHTML += `<br><b>Result: ${defender_army === 0 ? "Attacker Wins!" : "Defender Wins!"}</b>`;
 	
