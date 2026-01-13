@@ -35,6 +35,16 @@
         }
 
         h3 { text-align: center; margin-top: 0; }
+        
+        .unit-input {
+            flex: 1;
+            padding: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            text-align: center;
+        }
 
         /* The Slider Row */
         .row {
@@ -130,25 +140,8 @@
     <div class="army-column">
         <h3>Attacker</h3>
         <div class="row">
-            <label>1x Units:</label>
-            <span id="attacker_val_1">0</span>
-            <input type="range" id="attacker_one_battalion_slider" min="0" max="20" value="0">
-        </div>
-        <div class="row">
-            <label>3x Units:</label>
-            <span id="attacker_val_3">0</span>
-            <input type="range" id="attacker_three_battalion_slider" min="0" max="20" value="0">
-        </div>
-        <div class="row">
-            <label>5x Units:</label>
-            <span id="attacker_val_5">0</span>
-            <input type="range" id="attacker_five_battalion_slider" min="0" max="20" value="0">
-        </div>
-        <hr>
-        <div class="row">
-            <label>Total Units:</label>
-            <span id="attacker_total_display">0</span>
-            <span id="attacker_error" style="color: red; font-weight: bold; margin-left: 5px;"></span>
+            <label for="attacker_battalion_input">Units:</label>
+            <input type="number" id="attacker_battalion_input" value="0" class="unit-input">
         </div>
         <div class="row">
             <label>Bonuses:</label>
@@ -160,25 +153,8 @@
     <div class="army-column">
         <h3>Defender</h3>
         <div class="row">
-            <label>1x Units:</label>
-            <span id="defender_val_1">0</span>
-            <input type="range" id="defender_one_battalion_slider" min="0" max="20" value="0">
-        </div>
-        <div class="row">
-            <label>3x Units:</label>
-            <span id="defender_val_3">0</span>
-            <input type="range" id="defender_three_battalion_slider" min="0" max="20" value="0">
-        </div>
-        <div class="row">
-            <label>5x Units:</label>
-            <span id="defender_val_5">0</span>
-            <input type="range" id="defender_five_battalion_slider" min="0" max="20" value="0">
-        </div>
-        <hr>
-        <div class="row">
-            <label>Total Units:</label>
-            <span id="defender_total_display">0</span>
-            <span id="defender_error" style="color: red; font-weight: bold; margin-left: 5px;"></span>
+            <label for="defender_battalion_input">Units:</label>
+            <input type="number" id="defender_battalion_input" value="0" class="unit-input">
         </div>
         <div class="row">
             <label>Bonuses:</label>
@@ -208,18 +184,13 @@
 
 // Store the exact slider counts here
 let snapshot = {
-    attacker: { s1: 0, s3: 0, s5: 0 },
-    defender: { s1: 0, s3: 0, s5: 0 }
+    attacker: 0,
+    defender: 0
 };
 
 function takeSnapshot() {
-    snapshot.attacker.s1 = document.getElementById('attacker_one_battalion_slider').value;
-    snapshot.attacker.s3 = document.getElementById('attacker_three_battalion_slider').value;
-    snapshot.attacker.s5 = document.getElementById('attacker_five_battalion_slider').value;
-
-    snapshot.defender.s1 = document.getElementById('defender_one_battalion_slider').value;
-    snapshot.defender.s3 = document.getElementById('defender_three_battalion_slider').value;
-    snapshot.defender.s5 = document.getElementById('defender_five_battalion_slider').value;
+    snapshot.attacker = document.getElementById('attacker_battalion_input').value;
+    snapshot.defender = document.getElementById('defender_battalion_input').value;
 }
 
 function updateCommitReadout()
@@ -236,29 +207,23 @@ function updateCommitReadout()
     }
 }
 
-function updateArmyTotal(prefix) {
-    // Select elements using the full word prefix (attacker or defender)
-    const slider1 = document.getElementById(`${prefix}_one_battalion_slider`);
-    const slider3 = document.getElementById(`${prefix}_three_battalion_slider`);
-    const slider5 = document.getElementById(`${prefix}_five_battalion_slider`);
-    const totalDisplay = document.getElementById(`${prefix}_total_display`);
-
-    const display1 = document.getElementById(`${prefix}_val_1`);
-    const display3 = document.getElementById(`${prefix}_val_3`);
-    const display5 = document.getElementById(`${prefix}_val_5`);
-
-    // Update the individual number labels
-    display1.textContent = slider1.value;
-    display3.textContent = slider3.value;
-    display5.textContent = slider5.value;
-
-    // Perform the weighted math
-    const total = (Number(slider1.value) * 1) + 
-                  (Number(slider3.value) * 3) + 
-                  (Number(slider5.value) * 5);
+function clampArmyUnits(prefix) {
+    const unitInput = document.getElementById(`${prefix}_battalion_input`);
     
-    totalDisplay.textContent = total;
+    // Force the input to be a clean number (removes leading zeros like "05")
+    unitInput.value = Number(unitInput.value);
+
+    // Enforce Max/Min limits
+    const maxLimit = 160;
+    if (unitInput.value > maxLimit) unitInput.value = maxLimit;
+    if (unitInput.value < 0) unitInput.value = 0;
+}
+
+function onArmyUnitsUpdated(prefix) {
     
+    clampArmyUnits(prefix);
+    const total = Number(document.getElementById(`${prefix}_battalion_input`).value);
+
     // Sync Commit Slider if this is the Attacker
     if (prefix === 'attacker') {
         const commitSlider = document.getElementById('commit_slider');
@@ -284,22 +249,19 @@ function updateArmyTotal(prefix) {
 }
 
 function initializeArmyCalculator(prefix) {
-    // Select elements using the full word prefix (attacker or defender)
-    const slider1 = document.getElementById(`${prefix}_one_battalion_slider`);
-    const slider3 = document.getElementById(`${prefix}_three_battalion_slider`);
-    const slider5 = document.getElementById(`${prefix}_five_battalion_slider`);
+    // Select the single number input
+    const unitInput = document.getElementById(`${prefix}_battalion_input`);
     
-    // Attach listeners to all three sliders
-    [slider1, slider3, slider5].forEach(slider => {
-        slider.addEventListener('input', function() 
-        { 
-            updateArmyTotal(prefix); 
+    if (unitInput) {
+        // Attach listener for the single input
+        unitInput.addEventListener('input', function() { 
+            onArmyUnitsUpdated(prefix); 
             takeSnapshot();
         });
-    });
+    }
 
-    // Run once to set initial zeros
-    updateArmyTotal(prefix);
+    // Run once to set initial state
+    onArmyUnitsUpdated(prefix);
 }
 
 // Start the logic for both columns
@@ -314,62 +276,18 @@ commitSlider.addEventListener('input', function() {
 });
 
 function setArmyUnits(prefix, newTotal) {
-    const slider1 = document.getElementById(`${prefix}_one_battalion_slider`);
-    const slider3 = document.getElementById(`${prefix}_three_battalion_slider`);
-    const slider5 = document.getElementById(`${prefix}_five_battalion_slider`);
-
-    // Helper to get current total
-    const getSum = (s1, s3, s5) => (s1 * 1) + (s3 * 3) + (s5 * 5);
-
-    let s1 = Number(slider1.value);
-    let s3 = Number(slider3.value);
-    let s5 = Number(slider5.value);
-
-    // 1. Reduction Phase: Remove units until we are AT or BELOW newTotal
-    // Following your priority: 1s(to 8) -> 3s(to 5) -> 5s -> 3s -> 1s
-    while (getSum(s1, s3, s5) > newTotal) {
-        if (s1 > 8) { s1--; }
-        else if (s3 > 5) { s3--; }
-        else if (s5 > 0) { s5--; }
-        else if (s3 > 0) { s3--; }
-        else if (s1 > 0) { s1--; }
-        else { break; } // Safety break
-    }
-
-    // 2. Refill Phase: If we "overpaid" (e.g., removed a 5 to cover a debt of 2),
-    // we are now below newTotal. Add back using greedy logic to hit exact total.
-    while (getSum(s1, s3, s5) < newTotal) {
-        let diff = newTotal - getSum(s1, s3, s5);
-        if (diff >= 3) { s3++; }
-        else { s1++; }
-    }
-
-    // Apply values back
-    slider1.value = s1;
-    slider3.value = s3;
-    slider5.value = s5;
-
-    updateArmyTotal(prefix);
-    
-    // Error Checking Logic
-    const totalDisplay = document.getElementById(`${prefix}_total_display`);
-    const errorDisplay = document.getElementById(`${prefix}_error`);
-    if (newTotal !== Number(totalDisplay.textContent)) {
-        errorDisplay.textContent = "(Error)";
-    } else {
-        errorDisplay.textContent = ""; // Clear error if it matches or is manual
-    }
+    document.getElementById(`${prefix}_battalion_input`).value = newTotal;
+    onArmyUnitsUpdated(prefix);
 }
 
 function roll() { return Math.floor(Math.random() * 6) + 1; }
-
 document.getElementById('fight_button').addEventListener('click', function() {
     const log = document.getElementById('battle_log');
     log.innerHTML = "<b>Battle Started!</b><br>";
 
     // Get current totals from your existing displays
-    let attacker_army = parseInt(document.getElementById('attacker_total_display').textContent);
-    let defender_army = parseInt(document.getElementById('defender_total_display').textContent);
+    let attacker_army = parseInt(document.getElementById('attacker_battalion_input').value) || 0;
+    let defender_army = parseInt(document.getElementById('defender_battalion_input').value) || 0;
 
     if (attacker_army < 2) {
         log.innerHTML += "Attacker needs at least 2 units to attack.";
@@ -393,7 +311,7 @@ document.getElementById('fight_button').addEventListener('click', function() {
         let a_dice = Array.from({length: num_a_dice}, () => roll()).sort((a, b) => b - a);
         let d_dice = Array.from({length: num_d_dice}, () => roll()).sort((a, b) => b - a);
 
-        // 3. Apply LOTR +1 Bonus to the HIGHEST die only (if dice were rolled)
+        // 3. Apply LOTR +1 Bonus to the HIGHEST die only
         if (a_dice.length > 0) a_dice[0] += attacker_bonus;
         if (d_dice.length > 0) d_dice[0] += defender_bonus;
         
@@ -407,43 +325,43 @@ document.getElementById('fight_button').addEventListener('click', function() {
                 defender_army--;
                 d_loss++;
             } else {
-                // Defender wins ties
                 attacker_army--;
                 a_loss++;
                 attackerLostTotal++;
             }
-            // Break early if someone is wiped out mid-roll comparison
-            if (attacker_army <= 1 || defender_army <= 0) break;
+            
+            // Check halt condition mid-comparison
+            if (attackerLostTotal >= commitLimit || attacker_army <= 1 || defender_army <= 0) break;
         }
 
         log.innerHTML += `[${a_dice}] (-${a_loss}=${attacker_army}) vs [${d_dice}] (-${d_loss}=${defender_army})<br>`;
-        log.scrollTop = log.scrollHeight;
     }
 
+    // Check halt condition to exit the while loop
+    if (attacker_army > 1 && defender_army > 0) {
+        log.innerHTML += `<br><b style="color:orange;">Halted: Commit limit reached.</b><br>`;
+    }
+    else{
+        log.innerHTML += `<br><b>Result: ${defender_army === 0 ? "Attacker Wins!" : "Defender Wins!"}</b>`;
+    }
 
-    log.innerHTML += `<br><b>Result: ${defender_army === 0 ? "Attacker Wins!" : "Defender Wins!"}</b>`;
+    log.scrollTop = log.scrollHeight;
     
-    // Sync the sliders to the new reality
+    // Sync the inputs to the new reality
     setArmyUnits('attacker', attacker_army);
     setArmyUnits('defender', defender_army); 
 });
 
 document.getElementById('reset_button').addEventListener('click', function() {
-    // 2. Restore the exact slider positions from the snapshot
-    document.getElementById('attacker_one_battalion_slider').value = snapshot.attacker.s1;
-    document.getElementById('attacker_three_battalion_slider').value = snapshot.attacker.s3;
-    document.getElementById('attacker_five_battalion_slider').value = snapshot.attacker.s5;
+    document.getElementById('attacker_battalion_input').value = snapshot.attacker;
+    document.getElementById('defender_battalion_input').value = snapshot.defender;
 
-    document.getElementById('defender_one_battalion_slider').value = snapshot.defender.s1;
-    document.getElementById('defender_three_battalion_slider').value = snapshot.defender.s3;
-    document.getElementById('defender_five_battalion_slider').value = snapshot.defender.s5;
+    onArmyUnitsUpdated('attacker');
+    onArmyUnitsUpdated('defender');
 
-    // 3. Refresh the displays to match these values
-    updateArmyTotal('attacker');
-    updateArmyTotal('defender');
-
-    document.getElementById('battle_log').innerHTML = "Sliders restored to pre-battle positions.";
+    document.getElementById('battle_log').innerHTML = "Units restored to pre-battle counts.";
 });
+
 
 
 </script>
