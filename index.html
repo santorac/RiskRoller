@@ -4,122 +4,122 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GitHub Pages Slider</title>
-	
-	<style>
-		/* Global Styles */
-		body { 
-			font-family: sans-serif; 
-			padding: 20px; 
-			background-color: #f8f9fa;
-			margin: 0;
-		}
-		
-		/* Layout: Vertical by default (Mobile First) */
-		.main-container {
-			display: flex;
-			flex-direction: column; 
-			gap: 20px;
-			align-items: center;
-			width: 100%;
-		}
+    
+    <style>
+        /* Global Styles */
+        body { 
+            font-family: sans-serif; 
+            padding: 20px; 
+            background-color: #f8f9fa;
+            margin: 0;
+        }
+        
+        /* Layout: Vertical by default (Mobile First) */
+        .main-container {
+            display: flex;
+            flex-direction: column; 
+            gap: 20px;
+            align-items: center;
+            width: 100%;
+        }
 
-		/* Army Column Styling */
-		.army-column {
-			border: 1px solid #ccc;
-			padding: 20px;
-			border-radius: 12px;
-			width: 100%;
-			max-width: 400px; /* Limits size on large mobile/tablets */
-			background-color: #fff;
-			box-sizing: border-box;
-		}
+        /* Army Column Styling */
+        .army-column {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px; /* Limits size on large mobile/tablets */
+            background-color: #fff;
+            box-sizing: border-box;
+        }
 
-		h3 { text-align: center; margin-top: 0; }
+        h3 { text-align: center; margin-top: 0; }
 
-		/* The Slider Row */
-		.row {
-			display: flex;
-			align-items: center;
-			gap: 10px;
-			margin-bottom: 15px;
-		}
+        /* The Slider Row */
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
 
-		.row label { 
-			display: inline; 
-			margin-bottom: 0; 
-			flex: 0 0 100px; 
-			font-weight: bold; 
-		}
+        .row label { 
+            display: inline; 
+            margin-bottom: 0; 
+            flex: 0 0 100px; 
+            font-weight: bold; 
+        }
 
-		.row span {
-			min-width: 25px;
-			font-weight: bold;
-			color: #007bff;
-			text-align: center;
-		}
+        .row span {
+            min-width: 25px;
+            font-weight: bold;
+            color: #007bff;
+            text-align: center;
+        }
 
-		.row input[type="range"] { 
-			flex: 1; 
-			margin-bottom: 0; 
-			height: 30px; /* Makes slider easier to grab on touch screens */
-		}
+        .row input[type="range"] { 
+            flex: 1; 
+            margin-bottom: 0; 
+            height: 30px; /* Makes slider easier to grab on touch screens */
+        }
 
-		/* --- Simulation Panel Specific Styles --- */
-		.button-group {
-			display: flex;
-			gap: 10px;
-			margin-bottom: 20px;
-		}
+        /* --- Simulation Panel Specific Styles --- */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
 
-		.btn {
-			padding: 15px;
-			font-weight: bold;
-			cursor: pointer;
-			border: none;
-			border-radius: 8px;
-			color: white;
-			transition: opacity 0.2s;
-		}
+        .btn {
+            padding: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            transition: opacity 0.2s;
+        }
 
-		.btn:active { opacity: 0.8; }
+        .btn:active { opacity: 0.8; }
 
-		.btn-fight {
-			flex: 2;
-			background-color: #28a745;
-		}
+        .btn-fight {
+            flex: 2;
+            background-color: #28a745;
+        }
 
-		.btn-reset {
-			flex: 1;
-			background-color: #6c757d;
-		}
+        .btn-reset {
+            flex: 1;
+            background-color: #6c757d;
+        }
 
-		#battle_log {
-			height: 300px;
-			overflow-y: auto;
-			border: 1px solid #ddd;
-			padding: 10px;
-			font-family: monospace;
-			font-size: 0.8rem;
-			background: #fdfdfd;
-			border-radius: 4px;
-		}
+        #battle_log {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            background: #fdfdfd;
+            border-radius: 4px;
+        }
 
-		/* DESKTOP VIEW: If screen is wider than 850px, go side-by-side */
-		@media (min-width: 850px) {
-			body {
-				display: flex;
-				justify-content: center;
-				padding: 50px;
-			}
+        /* DESKTOP VIEW: If screen is wider than 850px, go side-by-side */
+        @media (min-width: 850px) {
+            body {
+                display: flex;
+                justify-content: center;
+                padding: 50px;
+            }
 
-			.main-container {
-				flex-direction: row; /* Switch to horizontal */
-				align-items: flex-start;
-				justify-content: center;
-				max-width: 1300px; /* Increased slightly to fit 3 columns better */
-			}
-		}
-	</style>
+            .main-container {
+                flex-direction: row; /* Switch to horizontal */
+                align-items: flex-start;
+                justify-content: center;
+                max-width: 1300px; /* Increased slightly to fit 3 columns better */
+            }
+        }
+    </style>
 
 
 </head>
@@ -148,12 +148,12 @@
         <div class="row">
             <label>Total Units:</label>
             <span id="attacker_total_display">0</span>
-			<span id="attacker_error" style="color: red; font-weight: bold; margin-left: 5px;"></span>
+            <span id="attacker_error" style="color: red; font-weight: bold; margin-left: 5px;"></span>
         </div>
-		<div class="row">
-			<label>Bonuses:</label>
-			<label style="flex:none; font-weight:normal;"><input type="checkbox" id="attacker_bonus_1">Leader</label>
-		</div>
+        <div class="row">
+            <label>Bonuses:</label>
+            <label style="flex:none; font-weight:normal;"><input type="checkbox" id="attacker_bonus_1">Leader</label>
+        </div>
     </div>
 
     <!-- Defender Column -->
@@ -178,30 +178,30 @@
         <div class="row">
             <label>Total Units:</label>
             <span id="defender_total_display">0</span>
-			<span id="defender_error" style="color: red; font-weight: bold; margin-left: 5px;"></span>
+            <span id="defender_error" style="color: red; font-weight: bold; margin-left: 5px;"></span>
         </div>
-		<div class="row">
-			<label>Bonuses:</label>
-			<label style="flex:none; font-weight:normal;"><input type="checkbox" id="defender_bonus_1">Leader</label>
-			<label style="flex:none; font-weight:normal;"><input type="checkbox" id="defender_bonus_2">Stronghold</label>
-		</div>
+        <div class="row">
+            <label>Bonuses:</label>
+            <label style="flex:none; font-weight:normal;"><input type="checkbox" id="defender_bonus_1">Leader</label>
+            <label style="flex:none; font-weight:normal;"><input type="checkbox" id="defender_bonus_2">Stronghold</label>
+        </div>
     </div>
-		
-	<div class="army-column simulation-panel">
-		<h3>Simulation</h3>
-		<div class="row">
-			<label for="commit_slider">Commit:</label>
-			<span id="commit_val">3</span>
-			<input type="range" id="commit_slider" min="3" max="20" value="20">
-		</div>
-		<div class="button-group">
-			<button id="fight_button" style="width:100%; padding:15px; font-weight:bold; cursor:pointer; background:#28a745; color:white; border:none; border-radius:8px;">FIGHT!</button>
-			<button id="reset_button" style="flex: 1; padding:15px; font-weight:bold; cursor:pointer; background:#6c757d; color:white; border:none; border-radius:8px;">Reset</button>		
-		</div>
-		<div id="battle_log" style="margin-top:20px; height:300px; overflow-y:auto; border:1px solid #ddd; padding:10px; font-family:monospace; font-size:0.8rem; background:#fdfdfd;">
-			Waiting for battle...
-		</div>
-	</div>	
+        
+    <div class="army-column simulation-panel">
+        <h3>Simulation</h3>
+        <div class="row">
+            <label for="commit_slider">Commit:</label>
+            <span id="commit_val">3</span>
+            <input type="range" id="commit_slider" min="3" max="20" value="20">
+        </div>
+        <div class="button-group">
+            <button id="fight_button" style="width:100%; padding:15px; font-weight:bold; cursor:pointer; background:#28a745; color:white; border:none; border-radius:8px;">FIGHT!</button>
+            <button id="reset_button" style="flex: 1; padding:15px; font-weight:bold; cursor:pointer; background:#6c757d; color:white; border:none; border-radius:8px;">Reset</button>        
+        </div>
+        <div id="battle_log" style="margin-top:20px; height:300px; overflow-y:auto; border:1px solid #ddd; padding:10px; font-family:monospace; font-size:0.8rem; background:#fdfdfd;">
+            Waiting for battle...
+        </div>
+    </div>    
 </div>
 
 <script>
@@ -224,16 +224,16 @@ function takeSnapshot() {
 
 function updateCommitReadout()
 {
-	const commitSlider = document.getElementById('commit_slider');
-	const commitVal = document.getElementById('commit_val');
-	if (commitSlider.value === commitSlider.max)
-	{
-		commitVal.textContent = "Max (" + commitSlider.value + ")";
-	}
-	else
-	{
-		commitVal.textContent = commitSlider.value;
-	}
+    const commitSlider = document.getElementById('commit_slider');
+    const commitVal = document.getElementById('commit_val');
+    if (commitSlider.value === commitSlider.max)
+    {
+        commitVal.textContent = "Max (" + commitSlider.value + ")";
+    }
+    else
+    {
+        commitVal.textContent = commitSlider.value;
+    }
 }
 
 function updateArmyTotal(prefix) {
@@ -243,43 +243,43 @@ function updateArmyTotal(prefix) {
     const slider5 = document.getElementById(`${prefix}_five_battalion_slider`);
     const totalDisplay = document.getElementById(`${prefix}_total_display`);
 
-	const display1 = document.getElementById(`${prefix}_val_1`);
-	const display3 = document.getElementById(`${prefix}_val_3`);
-	const display5 = document.getElementById(`${prefix}_val_5`);
+    const display1 = document.getElementById(`${prefix}_val_1`);
+    const display3 = document.getElementById(`${prefix}_val_3`);
+    const display5 = document.getElementById(`${prefix}_val_5`);
 
-	// Update the individual number labels
-	display1.textContent = slider1.value;
-	display3.textContent = slider3.value;
-	display5.textContent = slider5.value;
+    // Update the individual number labels
+    display1.textContent = slider1.value;
+    display3.textContent = slider3.value;
+    display5.textContent = slider5.value;
 
-	// Perform the weighted math
-	const total = (Number(slider1.value) * 1) + 
-				  (Number(slider3.value) * 3) + 
-				  (Number(slider5.value) * 5);
-	
-	totalDisplay.textContent = total;
-	
-	// Sync Commit Slider if this is the Attacker
+    // Perform the weighted math
+    const total = (Number(slider1.value) * 1) + 
+                  (Number(slider3.value) * 3) + 
+                  (Number(slider5.value) * 5);
+    
+    totalDisplay.textContent = total;
+    
+    // Sync Commit Slider if this is the Attacker
     if (prefix === 'attacker') {
         const commitSlider = document.getElementById('commit_slider');
-		
-		let keepAtMax = Number(commitSlider.value) >= Number(commitSlider.max);
-		
+        
+        let keepAtMax = Number(commitSlider.value) >= Number(commitSlider.max);
+        
         // Max units an attacker can lose is (Total - 1) because 1 must remain
         const maxCommit = Math.max(3, total - 1); 
-		
-		// Update max both before and after the value because of order-of-operations stickyness
+        
+        // Update max both before and after the value because of order-of-operations stickyness
         commitSlider.max = maxCommit;
-		
+        
         // Push value down if total dropped below current commit
         if (keepAtMax) {
             commitSlider.value = maxCommit;
         }
-				
-		// Update max both before and after the value because of order-of-operations stickyness
+                
+        // Update max both before and after the value because of order-of-operations stickyness
         commitSlider.max = maxCommit;
-		
-		updateCommitReadout();
+        
+        updateCommitReadout();
     }
 }
 
@@ -292,10 +292,10 @@ function initializeArmyCalculator(prefix) {
     // Attach listeners to all three sliders
     [slider1, slider3, slider5].forEach(slider => {
         slider.addEventListener('input', function() 
-		{ 
-			updateArmyTotal(prefix); 
-			takeSnapshot();
-		});
+        { 
+            updateArmyTotal(prefix); 
+            takeSnapshot();
+        });
     });
 
     // Run once to set initial zeros
@@ -310,7 +310,7 @@ initializeArmyCalculator('defender');
 const commitSlider = document.getElementById('commit_slider');
 const commitVal = document.getElementById('commit_val');
 commitSlider.addEventListener('input', function() {
-	updateCommitReadout();
+    updateCommitReadout();
 });
 
 function setArmyUnits(prefix, newTotal) {
@@ -350,10 +350,10 @@ function setArmyUnits(prefix, newTotal) {
     slider5.value = s5;
 
     updateArmyTotal(prefix);
-	
+    
     // Error Checking Logic
     const totalDisplay = document.getElementById(`${prefix}_total_display`);
-	const errorDisplay = document.getElementById(`${prefix}_error`);
+    const errorDisplay = document.getElementById(`${prefix}_error`);
     if (newTotal !== Number(totalDisplay.textContent)) {
         errorDisplay.textContent = "(Error)";
     } else {
@@ -375,57 +375,57 @@ document.getElementById('fight_button').addEventListener('click', function() {
         log.innerHTML += "Attacker needs at least 2 units to attack.";
         return;
     }
-	
+    
     // Calculate LOTR bonuses once at start of fight
     const attacker_bonus = (document.getElementById('attacker_bonus_1').checked ? 1 : 0);
     const defender_bonus = (document.getElementById('defender_bonus_1').checked ? 1 : 0) + 
                            (document.getElementById('defender_bonus_2').checked ? 1 : 0);
     
-	const commitLimit = Number(document.getElementById('commit_slider').value);
+    const commitLimit = Number(document.getElementById('commit_slider').value);
     let attackerLostTotal = 0;
-		
-	while (attacker_army > 1 && defender_army > 0 && attackerLostTotal < commitLimit) {
-		// 1. Determine how many dice to roll based on current army sizes
-		let num_a_dice = Math.min(3, attacker_army - 1);
-		let num_d_dice = Math.min(2, defender_army);
+        
+    while (attacker_army > 1 && defender_army > 0 && attackerLostTotal < commitLimit) {
+        // 1. Determine how many dice to roll based on current army sizes
+        let num_a_dice = Math.min(3, attacker_army - 1);
+        let num_d_dice = Math.min(2, defender_army);
 
-		// 2. Roll and sort the specific number of dice
-		let a_dice = Array.from({length: num_a_dice}, () => roll()).sort((a, b) => b - a);
-		let d_dice = Array.from({length: num_d_dice}, () => roll()).sort((a, b) => b - a);
+        // 2. Roll and sort the specific number of dice
+        let a_dice = Array.from({length: num_a_dice}, () => roll()).sort((a, b) => b - a);
+        let d_dice = Array.from({length: num_d_dice}, () => roll()).sort((a, b) => b - a);
 
-		// 3. Apply LOTR +1 Bonus to the HIGHEST die only (if dice were rolled)
-		if (a_dice.length > 0) a_dice[0] += attacker_bonus;
-		if (d_dice.length > 0) d_dice[0] += defender_bonus;
-		
-		let a_loss = 0, d_loss = 0;
+        // 3. Apply LOTR +1 Bonus to the HIGHEST die only (if dice were rolled)
+        if (a_dice.length > 0) a_dice[0] += attacker_bonus;
+        if (d_dice.length > 0) d_dice[0] += defender_bonus;
+        
+        let a_loss = 0, d_loss = 0;
 
-		// 4. Compare pairs (only as many pairs as the smaller dice pool)
-		let comparisons = Math.min(a_dice.length, d_dice.length);
+        // 4. Compare pairs (only as many pairs as the smaller dice pool)
+        let comparisons = Math.min(a_dice.length, d_dice.length);
 
-		for (let i = 0; i < comparisons; i++) {
-			if (a_dice[i] > d_dice[i]) {
-				defender_army--;
-				d_loss++;
-			} else {
-				// Defender wins ties
-				attacker_army--;
-				a_loss++;
-				attackerLostTotal++;
-			}
-			// Break early if someone is wiped out mid-roll comparison
-			if (attacker_army <= 1 || defender_army <= 0) break;
-		}
+        for (let i = 0; i < comparisons; i++) {
+            if (a_dice[i] > d_dice[i]) {
+                defender_army--;
+                d_loss++;
+            } else {
+                // Defender wins ties
+                attacker_army--;
+                a_loss++;
+                attackerLostTotal++;
+            }
+            // Break early if someone is wiped out mid-roll comparison
+            if (attacker_army <= 1 || defender_army <= 0) break;
+        }
 
-		log.innerHTML += `[${a_dice}] (-${a_loss}=${attacker_army}) vs [${d_dice}] (-${d_loss}=${defender_army})<br>`;
-		log.scrollTop = log.scrollHeight;
-	}
+        log.innerHTML += `[${a_dice}] (-${a_loss}=${attacker_army}) vs [${d_dice}] (-${d_loss}=${defender_army})<br>`;
+        log.scrollTop = log.scrollHeight;
+    }
 
 
     log.innerHTML += `<br><b>Result: ${defender_army === 0 ? "Attacker Wins!" : "Defender Wins!"}</b>`;
-	
-	// Sync the sliders to the new reality
-	setArmyUnits('attacker', attacker_army);
-	setArmyUnits('defender', defender_army); 
+    
+    // Sync the sliders to the new reality
+    setArmyUnits('attacker', attacker_army);
+    setArmyUnits('defender', defender_army); 
 });
 
 document.getElementById('reset_button').addEventListener('click', function() {
